@@ -1,0 +1,8 @@
+KindlyBuilder/cmake-build-debug
+KindlyBuilder/cmake-build-release-mingw
+KindlyBuilder/.idea
+
+KindlyPayload/.idea
+KindlyPayload/cmake-build-debug
+KindlyPayload/cmake-build-release
+KindlyPayload/cmake-build-release-mingw
