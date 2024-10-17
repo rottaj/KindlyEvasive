@@ -11,7 +11,7 @@
   <br/>
 
 **Kindly Evasive** is a post-exploitation and Initial Access Payload (IAP) toolkit created by <a href="https://github.com/rottaj">@rottaj</a>
-<br> It's designed for building and injecting payloads directly into memory. It allows you to efficiently manage payloads, facilitating seamless operations during engagements.
+<br> It's designed for building and injecting payloads evasively into memory. It allows you to efficiently manage payloads, facilitating seamless operations during engagements.
 
 > :warning: The use of this tool for malicious purposes is illegal and unethical. Always ensure that you have explicit permission to use this tool in any environment.
 
@@ -21,14 +21,46 @@
 ## Features
 
 ### Builder
-- **Payload Creation:** Build and inject configurations into a PE section that executes upon payload execution.
+- **Payload Creation:** Build and inject payload configurations into a custom PE section that loads them upon execution.
 - **Payload Source:** Load unencrypted payloads from your local computer or a remote server.
 - **Payload Encryption:** Encrypt payloads using various encryption methods.
 - **Chunking:** Optionally separate the payload into multiple files (chunks) for enhanced flexibility.
 
 ### Payload Options
-- **Shellcode Injection:** Support for injecting shellcode to maintain stealth and efficiency.
-- **In-Memory PE Loader:** Features a PE loader capable of supporting Cobalt Strike beacons.
+- **Shellcode Injection:** Support for injecting shellcode.
+- **In-Memory PE Loader:** Features a PE loader capable of loading EXE, DLL, and Cobalt Strike beacons.
+
+## Builder Arguments
+
+```plaintext
+Usage: ./KindlyBuilder [options]
+
+https://github.com/rottaj/KindlyEvasive
+
+Options:
+   --help                       Display this help message.
+   --output-dir                 Full file path including file name to output payload to.
+   --verbose                    Print verbose output
+   --debug                      Enables breakpoints and console ouput on payload file.
+
+Encryption Options:
+   --encryption-method          XOR, AES, RC4.
+   --encryption-key             Encryption key to be used.
+
+Payload Input Options:
+   --local-file                 Load unencrypted payload file from local computer. Argument is the full file path to the payload file.
+   --remote-file                Fetch unencrypted payload file from remote server. Argument is the full URL to the server hosting the payload file.
+
+Payload Features:
+   --payload-type               raw, dll, beacon
+   --dummy-fetch                Make HTTP requests to dummy API's alongside payload requests.
+
+Payload Delivery Options:
+   --staging-server             URL of web server used to host initial access payloads after build is complete.
+   --payload-size               Size of payload (bytes)
+   --chunk-count                Split encrypted payload into multiple files. Example: -chunk 3 (will output 3 .bin files)
+```
+
 
 ## Options
 
@@ -94,7 +126,7 @@ To get started with Kindly Evasive, run the following command:
 ## KindlyEvasive in action
 
 :point_down: Some Gifs might take a some time to load.  :point_down:
-
+![alt text](https://github.com/rottaj/KindlyEvasive/blob/main/assets/Builder.png?raw=true)
 ![alt text](https://github.com/rottaj/KindlyEvasive/blob/main/assets/Delivery.gif?raw=true)
 ![alt text](https://github.com/rottaj/KindlyEvasive/blob/main/assets/Beaconing.gif?raw=true)
 ![alt text](https://github.com/rottaj/KindlyEvasive/blob/main/assets/Defender.png?raw=true)
