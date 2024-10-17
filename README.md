@@ -3,7 +3,7 @@
 # Kindly Evasive
 
 <div align="center">
-  <img src="assets/kindlyevasive.png" width="25%" /><br />
+  <img src="assets/kindlyevasive.jpg" width="25%" /><br />
 </div>
 
 <div align="center">
