@@ -22,10 +22,10 @@ BOOL print_help() {
     printf("   --remote-file                Fetch unencrypted payload file from remote server. Argument is the full URL to the server hosting the payload file.\n");
     printf("\nPayload Features: \n");
     printf("   --payload-type               raw, dll, beacon\n");
+    printf("   --payload-size               Size of payload (in bytes)\n");
     printf("   --dummy-fetch                Make HTTP requests to dummy API's alongside payload requests.\n");
     printf("\nPayload Delivery Options:\n");
     printf("   --staging-server             URL of web server used to host initial access payloads after build is complete.\n");
-    printf("   --payload-size               Size of payload (bytes)\n");
     printf("   --chunk-count                Split encrypted payload into multiple files. Example: -chunk 3 (will output 3 .bin files) \n");
 
     printf("\n\n");
@@ -55,13 +55,15 @@ int HandleArgs(int argc, char *argv[]) {
             return 0;
         }
         else if (strcmp(argv[i], "--output-dir") == 0 && (i + 1) < argc) {
-            Builder->PayloadOutputDirectory = malloc(MAX_URL_SIZE);
-            strcpy(Builder->PayloadOutputDirectory, argv[++i]);
+            Builder->PayloadOutputDirectory = malloc(MAX_PATH);
+            CHAR pTempPayloadOutputDirectory[MAX_PATH];
+            strcpy(pTempPayloadOutputDirectory, argv[++i]);
+            Convert_PCHAR_To_WCHAR(pTempPayloadOutputDirectory, &Builder->PayloadOutputDirectory);
         } else if (strcmp(argv[i], "--remote-file") == 0 && (i + 1) < argc) {
             Builder->RemotePayloadURL = malloc(MAX_URL_SIZE);
             CHAR tempUrl[MAX_URL_SIZE];
             strcpy(tempUrl, argv[++i]);
-            ConvertPCHARtoWCHAR(tempUrl, &Builder->RemotePayloadURL);
+            Convert_PCHAR_To_WCHAR(tempUrl, &Builder->RemotePayloadURL);
         } else if (strcmp(argv[i], "--payload-size") == 0 && (i + 1) < argc) {
             Builder->PayloadSize = strtoul(argv[++i], NULL, 10);
         } else if (strcmp(argv[i], "--chunk-count") == 0 && (i + 1) < argc) {
@@ -72,7 +74,9 @@ int HandleArgs(int argc, char *argv[]) {
             Builder->PayloadType = string_to_payload_type(argv[++i]);
         }else if (strcmp(argv[i], "--staging-server") == 0 && (i + 1) < argc) {
             Builder->StagingURL= malloc(MAX_URL_SIZE);
-            strcpy(Builder->StagingURL, argv[++i]);
+            CHAR pTempStagingURL[MAX_URL_SIZE];
+            strcpy(pTempStagingURL, argv[++i]);
+            Convert_PCHAR_To_WCHAR(pTempStagingURL, &Builder->StagingURL);
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
         }

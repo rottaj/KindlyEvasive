@@ -3,7 +3,7 @@
 //
 
 #include <windows.h>
-void ConvertPCHARtoWCHAR(PCHAR pChar, WCHAR** pWideChar) {
+void Convert_PCHAR_To_WCHAR(PCHAR pChar, WCHAR** pWideChar) {
     // Calculate the length of the PCHAR string
     int length = MultiByteToWideChar(CP_UTF8, 0, pChar, -1, NULL, 0);
     if (length == 0) {
@@ -20,4 +20,8 @@ void ConvertPCHARtoWCHAR(PCHAR pChar, WCHAR** pWideChar) {
 
     // Perform the conversion
     MultiByteToWideChar(CP_UTF8, 0, pChar, -1, *pWideChar, length);
+}
+
+VOID Split_File_Path(PCHAR* p, PCHAR* f, PCHAR* pf) {
+
 }

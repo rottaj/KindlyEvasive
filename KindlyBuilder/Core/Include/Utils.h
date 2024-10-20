@@ -7,6 +7,6 @@
 
 #include <windows.h>
 
-void ConvertPCHARtoWCHAR(PCHAR pChar, WCHAR** pWideChar);
+void Convert_PCHAR_To_WCHAR(PCHAR pChar, WCHAR** pWideChar);
 
 #endif //UTILS_H

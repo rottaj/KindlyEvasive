@@ -7,7 +7,7 @@
 
 #include <windows.h>
 
-BOOL AddDataToSection(PCHAR filepath, PCHAR data);
-BOOL AddPESection(PCHAR filepath);
+BOOL AddDataToSection(PWCHAR filepath, PCHAR data);
+BOOL AddPESection(PWCHAR filepath);
 
 #endif //PE_H

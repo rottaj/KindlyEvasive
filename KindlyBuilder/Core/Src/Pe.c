@@ -10,10 +10,10 @@ DWORD align(DWORD size, DWORD align, DWORD addr){
     return addr + (size / align + 1) * align;
 }
 
-BOOL AddPESection(PCHAR filepath) {
-    HANDLE hFile = CreateFile(filepath, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+BOOL AddPESection(PWCHAR filepath) {
+    HANDLE hFile = CreateFileW(filepath, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
-        printf("[!] Invalid File Handle");
+        printf("[!] Invalid File Handle (AddPeSection)\n");
         return -1;
     }
     DWORD dwFileSize = GetFileSize(hFile, NULL);
@@ -74,15 +74,15 @@ BOOL AddPESection(PCHAR filepath) {
     return TRUE;
 }
 
-BOOL AddDataToSection(PCHAR filepath, PCHAR data) {
-    HANDLE file = CreateFile(filepath, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (file == INVALID_HANDLE_VALUE)
+BOOL AddDataToSection(CONST PWCHAR filepath, CONST PCHAR data) {
+    CONST HANDLE hFile = CreateFileW(filepath, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE)
         return FALSE;
-    DWORD dwFileSize = GetFileSize(file, NULL);
+    CONST DWORD dwFileSize = GetFileSize(hFile, NULL);
     BYTE *pByte = LocalAlloc(LMEM_ZEROINIT, dwFileSize);
     DWORD dw;
-    ReadFile(file, pByte, dwFileSize, &dw, NULL);
-    PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)pByte;
+    ReadFile(hFile, pByte, dwFileSize, &dw, NULL);
+    CONST PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)pByte;
     if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
         printf("[!] Error adding data to PE Section: Invalid DOS Signature\n");
         return FALSE;
@@ -95,11 +95,13 @@ BOOL AddDataToSection(PCHAR filepath, PCHAR data) {
 
     //since we added a new section,it must be the last section added,cause of the code inside
     //AddSection function,thus we must get to the last section to insert our secret data :)
-    PIMAGE_SECTION_HEADER first = IMAGE_FIRST_SECTION(nt);
-    PIMAGE_SECTION_HEADER last = first + (nt->FileHeader.NumberOfSections - 1);
+    CONST PIMAGE_SECTION_HEADER first = IMAGE_FIRST_SECTION(nt);
+    CONST PIMAGE_SECTION_HEADER last = first + (nt->FileHeader.NumberOfSections - 1);
 
-    SetFilePointer(file, last->PointerToRawData, NULL, FILE_BEGIN);
-    WriteFile(file, data, strlen(data), &dw, 0);
-    CloseHandle(file);
+    SetFilePointer(hFile, last->PointerToRawData, NULL, FILE_BEGIN);
+    //printf("Testing %ls", data);
+    //WriteFile(hFile, data, (wcslen(data) * sizeof(WCHAR)), &dw, 0);
+    WriteFile(hFile, data, strlen(data), &dw, 0);
+    CloseHandle(hFile);
     return TRUE;
 }

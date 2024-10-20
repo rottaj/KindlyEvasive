@@ -31,12 +31,12 @@ typedef struct {
     EncryptionMethod    EncryptionMethod;
     PayloadType         PayloadType;
     BYTE                EncryptionKey;
-    PCHAR               StagingURL;
+    PWCHAR               StagingURL;
     BOOL                isBeacon;
     // Local
-    PWCHAR              RemotePayloadURL;
-    PCHAR               LocalPayloadFilePath;
-    PCHAR               PayloadOutputDirectory;
+    PWCHAR               RemotePayloadURL;
+    PWCHAR               LocalPayloadFilePath;
+    PWCHAR               PayloadOutputDirectory;
 
 } *PBUILDER, BUILDER;
 
