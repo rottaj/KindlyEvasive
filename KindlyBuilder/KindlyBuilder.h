@@ -29,14 +29,15 @@ typedef struct {
     DWORD               ChunkCount;         // Number of chunks to seperate payload into
     SIZE_T              ChunkSize;
     EncryptionMethod    EncryptionMethod;
+    PCHAR               EncryptionKey;
     PayloadType         PayloadType;
-    BYTE                EncryptionKey;
-    PWCHAR               StagingURL;
+    PWCHAR              StagingURL;
     BOOL                isBeacon;
     // Local
-    PWCHAR               RemotePayloadURL;
-    PWCHAR               LocalPayloadFilePath;
-    PWCHAR               PayloadOutputDirectory;
+    BOOL                isLocalPayload;
+    PWCHAR              RemotePayloadURL;
+    PCHAR               LocalPayloadFilePath;
+    PWCHAR              PayloadOutputDirectory;
 
 } *PBUILDER, BUILDER;
 

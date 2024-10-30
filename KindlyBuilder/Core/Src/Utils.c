@@ -22,6 +22,22 @@ void Convert_PCHAR_To_WCHAR(PCHAR pChar, WCHAR** pWideChar) {
     MultiByteToWideChar(CP_UTF8, 0, pChar, -1, *pWideChar, length);
 }
 
+// TODO Replace with file mapping?
+BOOL ReadFileIntoBuffer(IN OUT PVOID *pBuffer, IN PCHAR pFilePath) {
+    HANDLE hFile = CreateFileA(pFilePath, GENERIC_ALL, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return FALSE;
+    }
+    DWORD dwFileSize = GetFileSize(hFile, NULL);
+    PBYTE pTempBuffer = LocalAlloc(LMEM_ZEROINIT, dwFileSize);
+    DWORD dwTempBytesRead = 0;
+    if (!ReadFile(hFile, pTempBuffer, dwFileSize, &dwTempBytesRead, NULL)) {
+        return FALSE;
+    }
+    *pBuffer = pTempBuffer;
+    return TRUE;
+}
+
 VOID Split_File_Path(PCHAR* p, PCHAR* f, PCHAR* pf) {
 
 }

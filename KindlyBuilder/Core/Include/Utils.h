@@ -9,4 +9,6 @@
 
 void Convert_PCHAR_To_WCHAR(PCHAR pChar, WCHAR** pWideChar);
 
+BOOL ReadFileIntoBuffer(IN OUT PVOID *pBuffer, IN PCHAR pFilePath);
+
 #endif //UTILS_H

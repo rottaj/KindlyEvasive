@@ -3,7 +3,7 @@ project(KindlyPayload C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(Beacond
+add_executable(KindlyPayload
         Core/Include/API.h
         Core/Src/API.c
         Core/Src/Http.c

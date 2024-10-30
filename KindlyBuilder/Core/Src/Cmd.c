@@ -61,15 +61,23 @@ int HandleArgs(int argc, char *argv[]) {
             Convert_PCHAR_To_WCHAR(pTempPayloadOutputDirectory, &Builder->PayloadOutputDirectory);
         } else if (strcmp(argv[i], "--remote-file") == 0 && (i + 1) < argc) {
             Builder->RemotePayloadURL = malloc(MAX_URL_SIZE);
+            Builder->isLocalPayload = FALSE;
             CHAR tempUrl[MAX_URL_SIZE];
             strcpy(tempUrl, argv[++i]);
             Convert_PCHAR_To_WCHAR(tempUrl, &Builder->RemotePayloadURL);
+        } else if (strcmp(argv[i], "--local-file") == 0 && (i + 1) < argc) {
+            Builder->isLocalPayload = TRUE;
+            Builder->LocalPayloadFilePath= malloc(MAX_URL_SIZE);
+            strcpy(Builder->LocalPayloadFilePath, argv[++i]);
         } else if (strcmp(argv[i], "--payload-size") == 0 && (i + 1) < argc) {
             Builder->PayloadSize = strtoul(argv[++i], NULL, 10);
         } else if (strcmp(argv[i], "--chunk-count") == 0 && (i + 1) < argc) {
             Builder->ChunkCount = strtoul(argv[++i], NULL, 10);
         } else if (strcmp(argv[i], "--encryption-method") == 0 && (i + 1) < argc) {
             Builder->EncryptionMethod = string_to_encryption_method(argv[++i]);
+        } else if (strcmp(argv[i], "--encryption-key") == 0 && (i + 1) < argc) {
+            Builder->EncryptionKey = malloc(256);
+            strcpy(Builder->EncryptionKey, argv[++i]);
         } else if (strcmp(argv[i], "--payload-type") == 0 && (i + 1) < argc) {
             Builder->PayloadType = string_to_payload_type(argv[++i]);
         }else if (strcmp(argv[i], "--staging-server") == 0 && (i + 1) < argc) {
